@@ -1,0 +1,12 @@
+[package]
+name = "keri-git"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[dependencies.git-storage]
+git = "https://github.com/radicle-dev/radicle-git"
+
+[dependencies.keri]
+path = "../keri-core/"

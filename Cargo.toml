@@ -1,0 +1,6 @@
+[workspace]
+members = [
+  "keri-core",
+  "keri-git",
+  "keri-radicle",
+]
