@@ -44,7 +44,9 @@ impl GitStorageDatabase {
     pub fn init<P: AsRef<Path>>(path: P, info: UserInfo) -> Result<Self, KeriError> {
         let keri_path = Self::keri_dir(&path);
 
-        Self::open(keri_path, info)
+        std::fs::create_dir_all(keri_path)?;
+
+        Self::open(path, info)
     }
 
     fn keri_dir<P: AsRef<Path>>(path: &P) -> PathBuf {
