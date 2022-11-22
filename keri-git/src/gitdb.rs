@@ -29,27 +29,24 @@ pub mod error {
 }
 
 
-pub struct GitStorageDatabase {
-    storage: KeriStore,
+pub struct GitStorageDatabase<'k> {
+    storage: KeriStore<'k>,
 }
 
-impl GitStorageDatabase {
-    pub fn open<P: AsRef<Path>>(path: P, info: UserInfo) -> Result<Self, error::IO> {
-        if !Self::check_keri_dir(&path) {
-            return Err(error::IO::NoKeriDir)
-        }
-
+impl<'k> GitStorageDatabase<'k> {
+    pub fn open(storage: &'k Write) -> Result<Self, error::IO> {
         Ok(Self {
-            storage: KeriStore::open(path, info)?
+            storage: KeriStore::open(storage)?,
         })
     }
     
-    pub fn init<P: AsRef<Path>>(path: P, info: UserInfo) -> Result<Self, error::IO> {
+    // Use UserInfo to derive applicable namespace ?
+    pub fn init<P: AsRef<Path>>(path: P, info: UserInfo) -> Result<(), error::IO> {
         let keri_path = Self::keri_dir(&path);
 
         std::fs::create_dir_all(keri_path)?;
 
-        Self::open(path, info)
+        Ok(())
     }
 
     fn keri_dir<P: AsRef<Path>>(path: &P) -> PathBuf {
@@ -61,13 +58,13 @@ impl GitStorageDatabase {
         keri_path
     }
 
-    fn check_keri_dir<P: AsRef<Path>>(path: &P) -> bool {
+    pub fn check_keri_dir<P: AsRef<Path>>(path: &P) -> bool {
         let keri_path = Self::keri_dir(&path);
         keri_path.is_dir()
     }
 }
 
-impl EventDatabase for GitStorageDatabase {
+impl<'k> EventDatabase for GitStorageDatabase<'k> {
     type Error = crate::keri_store::error::KeriError;
 
     fn last_event_at_sn(

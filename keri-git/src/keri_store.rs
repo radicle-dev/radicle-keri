@@ -56,14 +56,14 @@ pub mod error {
 
 }
 
-pub struct KeriStore {
-    storage: Write,
+pub struct KeriStore<'k> {
+    storage: &'k Write,
 }
 
-impl KeriStore {
-    pub fn open<P: AsRef<Path>>(path: P, info: UserInfo) -> Result<Self, error::Init> {
+impl<'k> KeriStore<'k> {
+    pub fn open(storage: &'k Write) -> Result<Self, error::Init> {
         Ok(KeriStore {
-            storage: Write::open(path, info)?,
+            storage,
         })
     }
 
