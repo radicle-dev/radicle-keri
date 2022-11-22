@@ -6,3 +6,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[dependencies.keri]
+path = "../keri-core"
+
+[dependencies.keri-git]
+path = "../keri-git"
+
+[dependencies.git-storage]
+git = "https://github.com/radicle-dev/radicle-git"
+
+[dependencies.radicle-git-types]
+git = "https://github.com/radicle-dev/radicle-git"
