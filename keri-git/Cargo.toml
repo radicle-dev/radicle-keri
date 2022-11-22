@@ -4,8 +4,22 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+ciborium = "0.2"
+serde_json = "1.0"
+thiserror = "1"
+
+[dependencies.git2]
+version = "0.15.0"
+default-features = false
+features = ["vendored-libgit2"]
 
 [dependencies.git-storage]
+git = "https://github.com/radicle-dev/radicle-git"
+
+[dependencies.git-ref-format]
+git = "https://github.com/radicle-dev/radicle-git"
+
+[dependencies.git-commit]
 git = "https://github.com/radicle-dev/radicle-git"
 
 [dependencies.keri]
