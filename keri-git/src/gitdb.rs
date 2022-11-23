@@ -4,7 +4,13 @@ use std::path::{Path, PathBuf};
 
 use git_storage::Write;
 
-use keri::{database::EventDatabase, prefix::{AttachedSignaturePrefix, BasicPrefix, IdentifierPrefix, SelfAddressingPrefix, SelfSigningPrefix}};
+use keri::{
+    database::EventDatabase,
+    prefix::{
+        AttachedSignaturePrefix, BasicPrefix, IdentifierPrefix, SelfAddressingPrefix,
+        SelfSigningPrefix,
+    },
+};
 
 use crate::keri_store::KeriStore;
 
@@ -28,7 +34,6 @@ pub mod error {
     }
 }
 
-
 pub struct GitStorageDatabase<'k> {
     storage: KeriStore<'k>,
 }
@@ -39,7 +44,7 @@ impl<'k> GitStorageDatabase<'k> {
             storage: KeriStore::open(storage)?,
         })
     }
-    
+
     // Use UserInfo to derive applicable namespace ?
     pub fn init<P: AsRef<Path>>(path: P, info: UserInfo) -> Result<(), error::IO> {
         let keri_path = Self::keri_dir(&path);
@@ -54,7 +59,7 @@ impl<'k> GitStorageDatabase<'k> {
         keri_path.push(&path);
         // TODO: Take this path out to a constant
         keri_path.push("refs/rad/");
-        
+
         keri_path
     }
 
@@ -79,8 +84,8 @@ impl<'k> EventDatabase for GitStorageDatabase<'k> {
                 let mut event_bytes = Vec::new();
                 ciborium::ser::into_writer(&e, &mut event_bytes).unwrap();
                 Ok(Some(event_bytes))
-            },
-            None => Ok(None)
+            }
+            None => Ok(None),
         }
     }
 
@@ -102,7 +107,7 @@ impl<'k> EventDatabase for GitStorageDatabase<'k> {
         &self,
         prefix: &IdentifierPrefix,
         sn: u64,
-        dig:&SelfAddressingPrefix,
+        dig: &SelfAddressingPrefix,
     ) -> Result<(), Self::Error> {
         todo!()
     }
@@ -111,7 +116,7 @@ impl<'k> EventDatabase for GitStorageDatabase<'k> {
         &self,
         pref: &IdentifierPrefix,
         sn: u64,
-        dig:&SelfAddressingPrefix,
+        dig: &SelfAddressingPrefix,
     ) -> Result<(), Self::Error> {
         todo!()
     }
@@ -120,7 +125,7 @@ impl<'k> EventDatabase for GitStorageDatabase<'k> {
         &self,
         pref: &IdentifierPrefix,
         sn: u64,
-        dig:&SelfAddressingPrefix,
+        dig: &SelfAddressingPrefix,
     ) -> Result<(), Self::Error> {
         todo!()
     }
@@ -129,7 +134,7 @@ impl<'k> EventDatabase for GitStorageDatabase<'k> {
         &self,
         pref: &IdentifierPrefix,
         sn: u64,
-        dig:&SelfAddressingPrefix,
+        dig: &SelfAddressingPrefix,
     ) -> Result<(), Self::Error> {
         todo!()
     }
@@ -138,7 +143,7 @@ impl<'k> EventDatabase for GitStorageDatabase<'k> {
         &self,
         pref: &IdentifierPrefix,
         sn: u64,
-        dig:&SelfAddressingPrefix,
+        dig: &SelfAddressingPrefix,
     ) -> Result<(), Self::Error> {
         todo!()
     }
@@ -146,9 +151,9 @@ impl<'k> EventDatabase for GitStorageDatabase<'k> {
     fn add_nt_receipt_for_event(
         &self,
         pref: &IdentifierPrefix,
-        dig:&SelfAddressingPrefix,
-        signer:&BasicPrefix,
-        sig:&SelfSigningPrefix,
+        dig: &SelfAddressingPrefix,
+        signer: &BasicPrefix,
+        sig: &SelfSigningPrefix,
     ) -> Result<(), Self::Error> {
         todo!()
     }
@@ -156,9 +161,9 @@ impl<'k> EventDatabase for GitStorageDatabase<'k> {
     fn add_t_receipt_for_event(
         &self,
         pref: &IdentifierPrefix,
-        dig:&SelfAddressingPrefix,
+        dig: &SelfAddressingPrefix,
         signer: &IdentifierPrefix,
-        sig:&AttachedSignaturePrefix,
+        sig: &AttachedSignaturePrefix,
     ) -> Result<(), Self::Error> {
         todo!()
     }
@@ -176,9 +181,9 @@ impl<'k> EventDatabase for GitStorageDatabase<'k> {
     fn escrow_t_receipt(
         &self,
         pref: &IdentifierPrefix,
-        dig:&SelfAddressingPrefix,
+        dig: &SelfAddressingPrefix,
         signer: &IdentifierPrefix,
-        sig:&AttachedSignaturePrefix,
+        sig: &AttachedSignaturePrefix,
     ) -> Result<(), Self::Error> {
         todo!()
     }

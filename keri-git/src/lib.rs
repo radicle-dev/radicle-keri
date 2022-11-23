@@ -1,2 +1,2 @@
-pub mod keri_store;
 pub mod gitdb;
+pub mod keri_store;
