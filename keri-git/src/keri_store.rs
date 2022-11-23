@@ -45,6 +45,8 @@ pub mod error {
         Git(#[from] git2::Error),
         #[error("No head found for KEL")]
         EmptyLog,
+        #[error("KERI log truncated")]
+        TruncatedLog,
         #[error(transparent)]
         FindRef(#[from] FindEntry),
         #[error(transparent)]
@@ -95,20 +97,20 @@ impl<'k> KeriStore<'k> {
         let head = self.log_head()?;
 
         let mut msg: Option<TimestampedSignedEventMessage> =
-            self.log_entry_sn_in_commit(sn, &head)?;
+            self.log_entry_in_commit(Some(sn), &head)?;
 
         while msg.is_none() {
             msg = head
                 .parents()
-                .find_map(|c| self.log_entry_sn_in_commit(sn, &c).ok()?);
+                .find_map(|c| self.log_entry_in_commit(Some(sn), &c).ok()?);
         }
 
         Ok(msg)
     }
 
-    fn log_entry_sn_in_commit(
+    fn log_entry_in_commit(
         &self,
-        sn: u64,
+        sn: Option<u64>,
         commit: &Commit,
     ) -> Result<Option<TimestampedSignedEventMessage>, error::KeriError> {
         let tree = commit.tree()?;
@@ -124,10 +126,14 @@ impl<'k> KeriStore<'k> {
                     if let Ok(msg) =
                         serde_json::from_str::<TimestampedSignedEventMessage>(msg_string)
                     {
-                        if msg.signed_event_message.event_message.event.get_sn() == sn {
-                            Some(msg)
+                        if sn.is_some() {
+                            if msg.signed_event_message.event_message.event.get_sn() == sn? {
+                                Some(msg)
+                            } else {
+                                None
+                            }
                         } else {
-                            None
+                            Some(msg)
                         }
                     } else {
                         None // String is not a KERI message TODO this is a silent error, because we should only find KERI messages in this chain
@@ -141,5 +147,41 @@ impl<'k> KeriStore<'k> {
         });
 
         Ok(msg)
+    }
+
+    pub fn log_entries(
+        &self,
+        commit: Option<Commit>,
+    ) -> Result<Vec<TimestampedSignedEventMessage>, error::KeriError> {
+        let head: Commit;
+        match commit {
+            None => head = self.log_head()?,
+            Some(c) => head = c,
+        }
+
+        let mut messages = Vec::new();
+
+        messages.push(
+            self.log_entry_in_commit(None, &head)?
+                .ok_or(error::KeriError::EmptyLog)?,
+        );
+
+        let mut parents = head.parents();
+        if parents.len() > 0 {
+            let mut next_msgs = parents
+                .find_map(|c| {
+                    let this_commit_msg = self.log_entry_in_commit(None, &c).ok()??;
+                    let mut child_entries = self.log_entries(Some(c)).ok()?;
+
+                    child_entries.push(this_commit_msg);
+                    child_entries.rotate_right(1);
+
+                    Some(child_entries)
+                })
+                .ok_or(error::KeriError::TruncatedLog)?;
+            messages.append(&mut next_msgs)
+        }
+
+        Ok(messages)
     }
 }

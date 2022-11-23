@@ -90,7 +90,22 @@ impl<'k> EventDatabase for GitStorageDatabase<'k> {
     }
 
     fn get_kerl(&self, id: &IdentifierPrefix) -> Result<Option<Vec<u8>>, Self::Error> {
-        todo!()
+        let mut kerl = self.storage.log_entries(None)?;
+
+        let kerl_bytes = Vec::<u8>::new();
+
+        if kerl.is_empty() {
+            Ok(None)
+        } else {
+            kerl.reverse();
+            let kerl_bytes: Vec<u8> = kerl.into_iter().fold(kerl_bytes, |mut kb, e| {
+                let mut event_bytes = Vec::new();
+                ciborium::ser::into_writer(&e, &mut event_bytes).unwrap();
+                kb.append(&mut event_bytes);
+                kb
+            });
+            Ok(Some(kerl_bytes))
+        }
     }
 
     fn log_event(
